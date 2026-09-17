@@ -36,6 +36,8 @@ public final class GboardAdvancedVoiceSettingsFeature
     private final String enabledSummary;
     private final String zhTwPunctuationTitle;
     private final String zhTwPunctuationSummary;
+    private final String bengaliTitle;
+    private final String bengaliSummary;
     private final String sectionBehavior;
     private final String sectionInformation;
     private final String sectionOfflineSpeechModel;
@@ -91,6 +93,10 @@ public final class GboardAdvancedVoiceSettingsFeature
                 R.string.gboard_patches_advanced_voice_zh_tw_punctuation_title);
         zhTwPunctuationSummary = GboardSettingsText.get(context,
                 R.string.gboard_patches_advanced_voice_zh_tw_punctuation_summary);
+        bengaliTitle = GboardSettingsText.get(context,
+                R.string.gboard_patches_advanced_voice_bengali_title);
+        bengaliSummary = GboardSettingsText.get(context,
+                R.string.gboard_patches_advanced_voice_bengali_summary);
         sectionBehavior = GboardSettingsText.get(context,
                 R.string.gboard_patches_advanced_voice_section_behavior);
         sectionInformation = GboardSettingsText.get(context,
@@ -195,6 +201,8 @@ public final class GboardAdvancedVoiceSettingsFeature
             boolean enabled = GboardAdvancedVoiceSettings.readEnabled(preferences);
             boolean zhTwPunctuationEnabled =
                     GboardAdvancedVoiceSettings.readZhTwPunctuationEnabled(preferences);
+            boolean bengaliEnabled =
+                    GboardAdvancedVoiceSettings.readBengaliEnabled(preferences);
             GboardDictationPayloadDetector.Detection payloadDetection =
                     GboardDictationPayloadDetector.detect(
                             context,
@@ -205,6 +213,7 @@ public final class GboardAdvancedVoiceSettingsFeature
                     host.getOfflineSpeechLanguages();
             Log.i(TAG, "Loaded Advanced Voice Typing enabled=" + enabled
                     + ", zhTwPunctuationEnabled=" + zhTwPunctuationEnabled
+                    + ", bengaliEnabled=" + bengaliEnabled
                     + ", payloadStatus=" + payloadDetection.getStatus()
                     + ", payloadPackage=" + payloadDetection.getPackageName()
                     + ", speechServicesStatus=" + speechServicesStatus
@@ -227,6 +236,12 @@ public final class GboardAdvancedVoiceSettingsFeature
                     enabled,
                     zhTwPunctuationEnabled,
                     value -> saveZhTwPunctuationEnabled(context, value)));
+            behaviorRows.add(new GboardPatchesSettingsContract.ToggleRow(
+                    bengaliTitle,
+                    bengaliSummary,
+                    enabled,
+                    bengaliEnabled,
+                    value -> saveBengaliEnabled(context, value)));
 
             List<GboardPatchesSettingsContract.Row> informationRows =
                     new ArrayList<GboardPatchesSettingsContract.Row>();
@@ -333,6 +348,15 @@ public final class GboardAdvancedVoiceSettingsFeature
             Log.i(TAG, "Saved zh-TW punctuation enabled=" + enabled);
         } catch (Throwable throwable) {
             Log.w(TAG, "Failed to save zh-TW punctuation state", throwable);
+        }
+    }
+
+    private void saveBengaliEnabled(Context context, boolean enabled) {
+        try {
+            GboardAdvancedVoiceSettings.writeBengaliEnabled(context, enabled);
+            Log.i(TAG, "Saved Bengali voice typing enabled=" + enabled);
+        } catch (Throwable throwable) {
+            Log.w(TAG, "Failed to save Bengali voice typing state", throwable);
         }
     }
 

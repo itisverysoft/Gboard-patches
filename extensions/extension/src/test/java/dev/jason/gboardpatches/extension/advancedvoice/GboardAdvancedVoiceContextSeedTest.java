@@ -46,6 +46,24 @@ public final class GboardAdvancedVoiceContextSeedTest {
     }
 
     @Test
+    public void bengaliSettingAdmitsBengaliLocalesOnlyWhenEnabled() {
+        GboardAdvancedVoice1803RuntimeSettings.setEnabledOverrideForTest(true);
+        GboardAdvancedVoice1803RuntimeSettings.setZhTwPunctuationEnabledOverrideForTest(false);
+        GboardAdvancedVoice1803RuntimeSettings.setBengaliEnabledOverrideForTest(false);
+        Set<?> stock = Collections.singleton(Locale.US);
+        Assert.assertSame(stock,
+                GboardAdvancedVoice1803Runtime.includeExactZhTwSupportedLocale(stock));
+
+        GboardAdvancedVoice1803RuntimeSettings.setBengaliEnabledOverrideForTest(true);
+        Set<?> locales = (Set<?>) GboardAdvancedVoice1803Runtime
+                .includeExactZhTwSupportedLocale(stock);
+        Assert.assertTrue(locales.contains(Locale.US));
+        Assert.assertTrue(locales.contains(Locale.forLanguageTag("bn-BD")));
+        Assert.assertTrue(locales.contains(Locale.forLanguageTag("bn-IN")));
+        Assert.assertFalse(locales.contains(Locale.forLanguageTag("zh-TW")));
+    }
+
+    @Test
     public void nullConstructorContextIsSafe() {
         GboardAdvancedVoice1803Runtime.seedApplicationContext(null);
     }

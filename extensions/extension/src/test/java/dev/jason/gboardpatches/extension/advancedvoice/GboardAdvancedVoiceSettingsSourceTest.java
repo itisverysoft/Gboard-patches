@@ -26,7 +26,7 @@ public final class GboardAdvancedVoiceSettingsSourceTest {
 
         Assert.assertTrue(keyboardGroup.contains(
                 "new GboardAdvancedVoiceSettingsFeature(context)"));
-        Assert.assertEquals(2, count(feature,
+        Assert.assertEquals(3, count(feature,
                 "new GboardPatchesSettingsContract.ToggleRow("));
         Assert.assertEquals(0, count(feature,
                 "new GboardPatchesSettingsContract.SelectorRow("));

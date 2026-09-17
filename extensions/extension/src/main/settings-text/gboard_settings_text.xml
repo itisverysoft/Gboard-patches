@@ -1830,6 +1830,14 @@
         <translation locale="en">Force-stop and restart Gboard for changes to take effect.</translation>
         <translation locale="zh-Hant">需要強制停止並重新啟動Gboard才會生效。</translation>
     </string>
+    <string name="gboard_patches_advanced_voice_bengali_title">
+        <translation locale="en">Bengali voice typing (experimental)</translation>
+        <translation locale="zh-Hant">孟加拉語語音輸入(實驗性)</translation>
+    </string>
+    <string name="gboard_patches_advanced_voice_bengali_summary">
+        <translation locale="en">Adds bn-BD and bn-IN to Advanced Voice Typing and Rambler. Works only if Google serves Bengali models. Force-stop and restart Gboard for changes to take effect.</translation>
+        <translation locale="zh-Hant">將 bn-BD 與 bn-IN 加入 Advanced Voice Typing 與 Rambler。僅在 Google 提供孟加拉語模型時有效。需要強制停止並重新啟動Gboard才會生效。</translation>
+    </string>
     <string name="gboard_patches_advanced_voice_section_behavior">
         <translation locale="en">Behavior</translation>
         <translation locale="zh-Hant">行為</translation>
@@ -1851,8 +1859,8 @@
         <translation locale="zh-Hant">支援的語言</translation>
     </string>
     <string name="gboard_patches_advanced_voice_supported_languages_summary">
-        <translation locale="en">Only en-US supports the complete feature set.\n\nEnglish en-AU, en-CA, en-GB, en-IE, en-IN, en-SG, en-US\nGerman de-AT, de-BE, de-CH, de-DE\nFrench fr-BE, fr-CA, fr-CH, fr-FR\nItalian it-CH, it-IT\nJapanese ja-JP\nSpanish es-ES, es-US</translation>
-        <translation locale="zh-Hant">只有 en-US 可以支援完整功能\n\n英文 en-AU、en-CA、en-GB、en-IE、en-IN、en-SG、en-US\n德文 de-AT、de-BE、de-CH、de-DE\n法文 fr-BE、fr-CA、fr-CH、fr-FR\n義大利文 it-CH、it-IT\n日文 ja-JP\n西班牙文 es-ES、es-US</translation>
+        <translation locale="en">Only en-US supports the complete feature set.\n\nEnglish en-AU, en-CA, en-GB, en-IE, en-IN, en-SG, en-US\nGerman de-AT, de-BE, de-CH, de-DE\nFrench fr-BE, fr-CA, fr-CH, fr-FR\nItalian it-CH, it-IT\nJapanese ja-JP\nSpanish es-ES, es-US\nBengali bn-BD, bn-IN (experimental, opt-in)</translation>
+        <translation locale="zh-Hant">只有 en-US 可以支援完整功能\n\n英文 en-AU、en-CA、en-GB、en-IE、en-IN、en-SG、en-US\n德文 de-AT、de-BE、de-CH、de-DE\n法文 fr-BE、fr-CA、fr-CH、fr-FR\n義大利文 it-CH、it-IT\n日文 ja-JP\n西班牙文 es-ES、es-US\n孟加拉文 bn-BD、bn-IN(實驗性,需手動開啟)</translation>
     </string>
     <string name="gboard_patches_advanced_voice_github_star_title">
         <translation locale="en">Support this project on GitHub 😊</translation>

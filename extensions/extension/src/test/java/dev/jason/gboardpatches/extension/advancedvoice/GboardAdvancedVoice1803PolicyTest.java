@@ -82,6 +82,27 @@ public final class GboardAdvancedVoice1803PolicyTest {
                 null, Locale.forLanguageTag("zh-TW"), false, null));
     }
 
+    @Test
+    public void enablesFormatterForExactBengaliTagsOnly() {
+        java.util.Set<String> bengali = GboardAdvancedVoice1803Policy.BENGALI_LANGUAGE_TAGS;
+
+        Assert.assertEquals(Boolean.FALSE,
+                GboardAdvancedVoice1803Policy.maybeEnableFormatterForLanguageTags(
+                        Locale.forLanguageTag("bn-BD"), bengali, false, Boolean.TRUE));
+        Assert.assertEquals(Boolean.FALSE,
+                GboardAdvancedVoice1803Policy.maybeEnableFormatterForLanguageTags(
+                        Locale.forLanguageTag("bn-IN"), bengali, false, Boolean.TRUE));
+        Assert.assertEquals(Boolean.TRUE,
+                GboardAdvancedVoice1803Policy.maybeEnableFormatterForLanguageTags(
+                        Locale.forLanguageTag("bn-BD"), bengali, true, Boolean.TRUE));
+        Assert.assertEquals(Boolean.TRUE,
+                GboardAdvancedVoice1803Policy.maybeEnableFormatterForLanguageTags(
+                        Locale.forLanguageTag("zh-TW"), bengali, false, Boolean.TRUE));
+        Assert.assertEquals(Boolean.TRUE,
+                GboardAdvancedVoice1803Policy.maybeEnableFormatterForLanguageTags(
+                        Locale.US, bengali, false, Boolean.TRUE));
+    }
+
     private static Method policyMethod(String name, Class<?>... parameterTypes)
             throws Exception {
         Class<?> policy;

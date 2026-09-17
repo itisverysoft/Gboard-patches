@@ -14,11 +14,14 @@ public final class GboardAdvancedVoiceSettings {
             "pref_advanced_voice_backend";
     public static final String PREF_KEY_ZH_TW_PUNCTUATION_ENABLED =
             "pref_advanced_voice_zh_tw_punctuation_enabled";
+    public static final String PREF_KEY_BENGALI_ENABLED =
+            "pref_advanced_voice_bengali_enabled";
     public static final String BACKEND_ADVANCED = "advanced";
     public static final String BACKEND_RAMBLER = "rambler";
     public static final boolean DEFAULT_ENABLED = false;
     public static final String DEFAULT_BACKEND = BACKEND_ADVANCED;
     public static final boolean DEFAULT_ZH_TW_PUNCTUATION_ENABLED = false;
+    public static final boolean DEFAULT_BENGALI_ENABLED = false;
 
     private GboardAdvancedVoiceSettings() {
     }
@@ -47,6 +50,10 @@ public final class GboardAdvancedVoiceSettings {
                     DEFAULT_ZH_TW_PUNCTUATION_ENABLED);
             changed = true;
         }
+        if (!preferences.contains(PREF_KEY_BENGALI_ENABLED)) {
+            editor.putBoolean(PREF_KEY_BENGALI_ENABLED, DEFAULT_BENGALI_ENABLED);
+            changed = true;
+        }
         if (changed) {
             if (editor.commit()) {
                 GboardAdvancedVoice1803RuntimeSettings.invalidateCachedSnapshot();
@@ -63,6 +70,13 @@ public final class GboardAdvancedVoiceSettings {
                 preferences,
                 PREF_KEY_ZH_TW_PUNCTUATION_ENABLED,
                 DEFAULT_ZH_TW_PUNCTUATION_ENABLED);
+    }
+
+    public static boolean readBengaliEnabled(SharedPreferences preferences) {
+        return readBooleanStrict(
+                preferences,
+                PREF_KEY_BENGALI_ENABLED,
+                DEFAULT_BENGALI_ENABLED);
     }
 
     public static String readBackend(SharedPreferences preferences) {
@@ -110,6 +124,14 @@ public final class GboardAdvancedVoiceSettings {
                 preferences,
                 PREF_KEY_ZH_TW_PUNCTUATION_ENABLED,
                 enabled);
+    }
+
+    public static boolean writeBengaliEnabled(Context context, boolean enabled) {
+        return context != null && writeBengaliEnabled(preferences(context), enabled);
+    }
+
+    public static boolean writeBengaliEnabled(SharedPreferences preferences, boolean enabled) {
+        return writeBoolean(preferences, PREF_KEY_BENGALI_ENABLED, enabled);
     }
 
     private static boolean readBooleanStrict(
