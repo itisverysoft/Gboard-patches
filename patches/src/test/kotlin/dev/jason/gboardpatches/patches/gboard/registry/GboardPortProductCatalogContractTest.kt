@@ -684,6 +684,7 @@ class GboardPortProductCatalogContractTest {
             "lan_ftp_server" to "version-neutral-extension",
             "latin_globe_key_ignore_interval" to "version-sensitive",
             "long_press_editing_shortcuts" to "version-sensitive",
+            "mac_bridge" to "version-sensitive",
             "package_rename" to "generic",
             "quick_insert" to "version-sensitive",
             "rounded_keyboard_panel" to "version-sensitive",

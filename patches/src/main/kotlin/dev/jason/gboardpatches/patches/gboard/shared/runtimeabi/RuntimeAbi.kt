@@ -72,6 +72,8 @@ internal enum class RuntimeCallId(internal val encodedAbi: String) {
     LONG_PRESS_QUICK_ACTIONS_RUNTIME_MAYBE_PATCH_METADATA("Ldev/jason/gboardpatches/extension/longpressquickactions/GboardLongPressQuickActions1803Runtime;->maybePatchMetadata(Ljava/lang/Object;Landroid/view/View;)Ljava/lang/Object;"),
     LONG_PRESS_QUICK_ACTIONS_RUNTIME_ON_GLOBE_POINTER_CANCEL("Ldev/jason/gboardpatches/extension/longpressquickactions/GboardGlobeDragRuntime;->onPointerCancel(Ljava/lang/Object;)V"),
     LONG_PRESS_QUICK_ACTIONS_RUNTIME_ON_GLOBE_POINTER_FINISH("Ldev/jason/gboardpatches/extension/longpressquickactions/GboardGlobeDragRuntime;->onPointerFinish(Ljava/lang/Object;)V"),
+    MAC_BRIDGE_RUNTIME_ON_INPUT_VIEW_STARTED("Ldev/jason/gboardpatches/extension/macbridge/GboardMacBridgeRuntime;->onInputViewStarted(Ljava/lang/Object;)V"),
+    MAC_BRIDGE_RUNTIME_ON_INPUT_WINDOW_HIDDEN("Ldev/jason/gboardpatches/extension/macbridge/GboardMacBridgeRuntime;->onInputWindowHidden()V"),
     MANUAL_INCOGNITO_RUNTIME_APPLY_CLIPBOARD_POLICY("Ldev/jason/gboardpatches/extension/manualincognito/GboardManualIncognitoRuntime;->applyClipboardIncognitoPolicy(Z)Z"),
     MANUAL_INCOGNITO_RUNTIME_APPLY_DICTATION_FLAG("Ldev/jason/gboardpatches/extension/manualincognito/GboardManualIncognitoRuntime;->applyDictationIncognitoFlag(Z)Z"),
     MANUAL_INCOGNITO_RUNTIME_APPLY_INCOGNITO_PREDICATE("Ldev/jason/gboardpatches/extension/manualincognito/GboardManualIncognitoRuntime;->applyIncognitoPredicate(Z)Z"),

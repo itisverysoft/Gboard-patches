@@ -63,6 +63,9 @@ import dev.jason.gboardpatches.patches.gboard.features.lanftp.gboardLanFtpManife
 import dev.jason.gboardpatches.patches.gboard.features.latinglobe.gboardLatinGlobeKeyIgnoreIntervalBytecodePatch
 import dev.jason.gboardpatches.patches.gboard.features.latinglobe.gboardLatinGlobeKeyIgnoreIntervalFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.longpressquickactions.gboardLongPressQuickActionsFeatureMarkerPatch
+import dev.jason.gboardpatches.patches.gboard.features.macbridge.gboardMacBridgeFeatureMarkerPatch
+import dev.jason.gboardpatches.patches.gboard.features.macbridge.gboardMacBridgeLifecyclePatch
+import dev.jason.gboardpatches.patches.gboard.features.macbridge.gboardMacBridgeManifestPatch
 import dev.jason.gboardpatches.patches.gboard.features.manualincognito.gboardManualIncognitoFeatureMarkerPatch
 import dev.jason.gboardpatches.patches.gboard.features.manualincognito.gboardManualIncognitoLifecyclePatch
 import dev.jason.gboardpatches.patches.gboard.features.manualincognito.gboardManualIncognitoPolicyPatch
@@ -634,6 +637,26 @@ val gboardLanFtpServerPatch = gboardPublicResourcePatch(
 }
 
 @Suppress("unused")
+val gboardMacBridgePatch = gboardPublicResourcePatch(
+    featureId = "mac_bridge",
+    name = "Mac Bridge",
+    description = "與 Rambler for Mac 配對：Mac 傳來的文字進入剪貼簿，工具列按鈕可把文字送到 Mac\n" +
+        "Pair with Rambler for Mac: text sent from the Mac lands on the clipboard, " +
+        "and a toolbar button sends text to the Mac.",
+    default = true,
+) {
+    compatibleWith(COMPATIBILITY_GBOARD)
+
+    dependsOn(
+        gboardPatchesSettingsPatch,
+        gboardMacBridgeFeatureMarkerPatch,
+        gboardMacBridgeManifestPatch,
+        gboardMacBridgeLifecyclePatch,
+        gboardAccessPointContributions1803Patch,
+    )
+}
+
+@Suppress("unused")
 val gboardDeviceIntelligencePatch = gboardPublicResourcePatch(
     featureId = "enable_inline_autofill_suggestions",
     name = "Enable Inline Autofill Suggestions",
@@ -871,6 +894,7 @@ object GboardPublishedPatchCatalog {
         gboardClipboardContentLimitPatch,
         gboardWebClipboardPatch,
         gboardLanFtpServerPatch,
+        gboardMacBridgePatch,
         gboardDeviceIntelligencePatch,
         gboardGrammarCheckerFlagPatch,
         gboardInlineSuggestionsFlagPatch,

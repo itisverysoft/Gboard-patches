@@ -63,6 +63,12 @@ Import custom ZIP themes and beautiful themes from the official Rboard repositor
 </details>
 
 <details>
+  <summary><code>Mac Bridge</code></summary>
+
+  Pairs Gboard with Rambler for Mac over the same LAN. Text sent from the Mac with Send Selection to Phone lands on the phone's clipboard and in Gboard's clipboard history, and a draggable <code>Send to Mac</code> toolbar button types the selected text, or the whole field, into the Mac's focused app. Pairing uses the 6-digit code or the QR link shown by the Mac, pins the Mac's TLS certificate, and keeps the token encrypted with the Android Keystore. The keyboard connects only while it is open, with no background service or notification, and password fields are never sent.
+</details>
+
+<details>
   <summary><code>Long-Press Editing Shortcuts</code></summary>
 
   Add Select all, Undo, Copy, Cut, Paste, and Redo long-press shortcuts to English QWERTY and Zhuyin, with an optional globe-key drag gesture that follows the same physical key positions across supported alphabet layouts.

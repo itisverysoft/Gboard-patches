@@ -3170,4 +3170,252 @@
         <translation locale="en">Editing buttons settings unavailable. Reopen settings and try again.</translation>
         <translation locale="zh-Hant">編輯按鈕設定無法載入，請重新開啟設定再試一次。</translation>
     </string>
+    <string name="gboard_patches_mac_bridge_title">
+        <translation locale="en">Mac Bridge</translation>
+        <translation locale="zh-Hant">Mac 橋接</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_summary">
+        <translation locale="en">Share text with Rambler for Mac: text sent from the Mac lands on the clipboard, and Send to Mac types on the Mac.</translation>
+        <translation locale="zh-Hant">與 Rambler for Mac 分享文字：Mac 傳來的文字會進入剪貼簿，「傳送到 Mac」會在 Mac 上輸入文字。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_header_summary">
+        <translation locale="en">Connects to the paired Mac only while the keyboard is open. No background service, no notification.</translation>
+        <translation locale="zh-Hant">只在鍵盤開啟時連線到已配對的 Mac，不使用背景服務，也不顯示通知。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_status_unpaired_title">
+        <translation locale="en">Not paired</translation>
+        <translation locale="zh-Hant">尚未配對</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_status_unpaired_summary">
+        <translation locale="en">On the Mac, open Rambler and choose Pair a Phone… to show a pairing code, then find the Mac below.</translation>
+        <translation locale="zh-Hant">在 Mac 上開啟 Rambler 並選擇「Pair a Phone…」顯示配對碼，再於下方尋找 Mac。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_status_forgotten_title">
+        <translation locale="en">%1$s no longer knows this phone</translation>
+        <translation locale="zh-Hant">%1$s 已不再識別這支手機</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_status_forgotten_summary">
+        <translation locale="en">This phone was removed on the Mac. Pair again to keep using Mac Bridge.</translation>
+        <translation locale="zh-Hant">這支手機已在 Mac 上移除，請重新配對以繼續使用 Mac 橋接。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_status_paired_title">
+        <translation locale="en">Paired with %1$s</translation>
+        <translation locale="zh-Hant">已與 %1$s 配對</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_status_paired_summary">
+        <translation locale="en">%1$s · %2$s</translation>
+        <translation locale="zh-Hant">%1$s · %2$s</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_state_off">
+        <translation locale="en">Off</translation>
+        <translation locale="zh-Hant">已關閉</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_state_connected">
+        <translation locale="en">Connected</translation>
+        <translation locale="zh-Hant">已連線</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_state_idle">
+        <translation locale="en">Connects when the keyboard opens</translation>
+        <translation locale="zh-Hant">開啟鍵盤時連線</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_section_feature">
+        <translation locale="en">Feature</translation>
+        <translation locale="zh-Hant">功能</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_section_pairing">
+        <translation locale="en">Pairing</translation>
+        <translation locale="zh-Hant">配對</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_section_usage">
+        <translation locale="en">How to use</translation>
+        <translation locale="zh-Hant">使用方式</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_enable_title">
+        <translation locale="en">Enable Mac Bridge</translation>
+        <translation locale="zh-Hant">啟用 Mac 橋接</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_enable_summary">
+        <translation locale="en">Stay connected to the Mac while the keyboard is open and for a minute after it closes.</translation>
+        <translation locale="zh-Hant">鍵盤開啟時以及關閉後一分鐘內保持與 Mac 連線。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_find_title">
+        <translation locale="en">Find Macs on this network</translation>
+        <translation locale="zh-Hant">尋找此網路上的 Mac</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_pair_again_title">
+        <translation locale="en">Pair with another Mac</translation>
+        <translation locale="zh-Hant">與其他 Mac 配對</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_find_summary">
+        <translation locale="en">Pick your Mac, then type the 6-digit code it shows under Pair a Phone….</translation>
+        <translation locale="zh-Hant">選擇你的 Mac，再輸入它在「Pair a Phone…」顯示的 6 位數配對碼。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_link_title">
+        <translation locale="en">Pair with a link</translation>
+        <translation locale="zh-Hant">使用連結配對</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_link_summary">
+        <translation locale="en">Paste the voxbridge://pair link from the Mac’s pairing QR code.</translation>
+        <translation locale="zh-Hant">貼上 Mac 配對 QR 碼中的 voxbridge://pair 連結。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_link_invalid">
+        <translation locale="en">That is not a Rambler pairing link.</translation>
+        <translation locale="zh-Hant">這不是 Rambler 的配對連結。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_test_title">
+        <translation locale="en">Test connection</translation>
+        <translation locale="zh-Hant">測試連線</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_test_summary">
+        <translation locale="en">Check that the Mac answers and still knows this phone.</translation>
+        <translation locale="zh-Hant">確認 Mac 有回應且仍識別這支手機。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_test_ok">
+        <translation locale="en">Connected to %1$s.</translation>
+        <translation locale="zh-Hant">已連線到 %1$s。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_unpair_title">
+        <translation locale="en">Unpair</translation>
+        <translation locale="zh-Hant">取消配對</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_unpair_summary">
+        <translation locale="en">Forget %1$s on this phone.</translation>
+        <translation locale="zh-Hant">在這支手機上移除 %1$s。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_unpair_confirm">
+        <translation locale="en">Forget %1$s? You can remove this phone on the Mac too.</translation>
+        <translation locale="zh-Hant">要移除 %1$s 嗎？你也可以在 Mac 上移除這支手機。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_usage_send_title">
+        <translation locale="en">Send to Mac</translation>
+        <translation locale="zh-Hant">傳送到 Mac</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_usage_send_summary">
+        <translation locale="en">Find Send to Mac in the keyboard’s ⋯ menu, or drag it onto the toolbar. It types the selected text, or the whole field when nothing is selected, into the Mac’s focused app and puts it on the Mac’s clipboard. Password fields are never sent.</translation>
+        <translation locale="zh-Hant">在鍵盤的 ⋯ 選單中找到「Send to Mac」，或把它拖曳到工具列。它會把選取的文字（未選取時為整個欄位）輸入到 Mac 目前的應用程式，並放到 Mac 的剪貼簿。密碼欄位一律不會傳送。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_usage_receive_title">
+        <translation locale="en">From the Mac</translation>
+        <translation locale="zh-Hant">從 Mac 傳來</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_usage_receive_summary">
+        <translation locale="en">In Rambler for Mac, choose Send Selection to Phone. The text lands on this phone’s clipboard and in Gboard’s clipboard history. If the keyboard is closed, the Mac keeps it for ten minutes and delivers it the next time the keyboard opens.</translation>
+        <translation locale="zh-Hant">在 Rambler for Mac 選擇「Send Selection to Phone」。文字會進入這支手機的剪貼簿與 Gboard 剪貼簿紀錄。若鍵盤未開啟，Mac 會保留十分鐘，並在下次開啟鍵盤時送達。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_searching">
+        <translation locale="en">Looking for Macs on this network…</translation>
+        <translation locale="zh-Hant">正在尋找此網路上的 Mac…</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_found_title">
+        <translation locale="en">Choose your Mac</translation>
+        <translation locale="zh-Hant">選擇你的 Mac</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_found_none_title">
+        <translation locale="en">No Mac found. Is Rambler open on the Mac?</translation>
+        <translation locale="zh-Hant">找不到 Mac。Mac 上的 Rambler 是否已開啟？</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_enter_address">
+        <translation locale="en">Enter the Mac’s address…</translation>
+        <translation locale="zh-Hant">輸入 Mac 的位址…</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_address_title">
+        <translation locale="en">Mac address</translation>
+        <translation locale="zh-Hant">Mac 位址</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_address_invalid">
+        <translation locale="en">Enter an IP address, optionally with :port.</translation>
+        <translation locale="zh-Hant">請輸入 IP 位址，可加上 :port。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_code_title">
+        <translation locale="en">Code shown on %1$s</translation>
+        <translation locale="zh-Hant">%1$s 顯示的配對碼</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_code_invalid">
+        <translation locale="en">Enter the 6-digit code.</translation>
+        <translation locale="zh-Hant">請輸入 6 位數配對碼。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_pairing">
+        <translation locale="en">Pairing with %1$s…</translation>
+        <translation locale="zh-Hant">正在與 %1$s 配對…</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_paired">
+        <translation locale="en">Paired with %1$s.</translation>
+        <translation locale="zh-Hant">已與 %1$s 配對。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_error_unreachable">
+        <translation locale="en">Couldn’t reach the Mac at %1$s. Check that both are on the same Wi-Fi and Rambler is open.</translation>
+        <translation locale="zh-Hant">無法連線到 %1$s 的 Mac。請確認兩者在同一個 Wi-Fi，且 Rambler 已開啟。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_error_wrong_mac">
+        <translation locale="en">This Mac’s certificate doesn’t match. Pair again from the Mac.</translation>
+        <translation locale="zh-Hant">這台 Mac 的憑證不符，請從 Mac 重新配對。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_error_bad_code">
+        <translation locale="en">Wrong code. Check the code shown on the Mac.</translation>
+        <translation locale="zh-Hant">配對碼錯誤，請確認 Mac 上顯示的配對碼。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_error_not_pairing">
+        <translation locale="en">The Mac isn’t pairing. Choose Pair a Phone… on the Mac first.</translation>
+        <translation locale="zh-Hant">Mac 目前不在配對模式，請先在 Mac 上選擇「Pair a Phone…」。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_error_storage">
+        <translation locale="en">Paired, but the pairing couldn’t be saved on this phone. Try again.</translation>
+        <translation locale="zh-Hant">已配對，但無法在這支手機上儲存配對資料，請再試一次。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_error_refused">
+        <translation locale="en">The Mac refused the connection. Try again.</translation>
+        <translation locale="zh-Hant">Mac 拒絕了連線，請再試一次。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_error_permission">
+        <translation locale="en">Local network access is needed to reach the Mac.</translation>
+        <translation locale="zh-Hant">需要區域網路存取權限才能連線到 Mac。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_error_title">
+        <translation locale="en">Mac Bridge unavailable</translation>
+        <translation locale="zh-Hant">Mac 橋接無法使用</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_error_summary">
+        <translation locale="en">Reopen settings and try again.</translation>
+        <translation locale="zh-Hant">請重新開啟設定再試一次。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_toast_not_paired">
+        <translation locale="en">Pair a Mac first: Gboard settings → Patches → Mac Bridge.</translation>
+        <translation locale="zh-Hant">請先配對 Mac：Gboard 設定 → Patches → Mac 橋接。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_toast_forgotten">
+        <translation locale="en">%1$s no longer knows this phone. Pair again in Mac Bridge settings.</translation>
+        <translation locale="zh-Hant">%1$s 已不再識別這支手機，請在 Mac 橋接設定中重新配對。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_toast_no_field">
+        <translation locale="en">Tap a text field first.</translation>
+        <translation locale="zh-Hant">請先點選文字欄位。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_toast_password">
+        <translation locale="en">Mac Bridge never sends password fields.</translation>
+        <translation locale="zh-Hant">Mac 橋接不會傳送密碼欄位。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_toast_nothing">
+        <translation locale="en">Nothing to send.</translation>
+        <translation locale="zh-Hant">沒有可傳送的內容。</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_toast_connecting">
+        <translation locale="en">Connecting to %1$s…</translation>
+        <translation locale="zh-Hant">正在連線到 %1$s…</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_toast_clip">
+        <translation locale="en">Copied from %1$s</translation>
+        <translation locale="zh-Hant">已從 %1$s 複製</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_toast_typed">
+        <translation locale="en">Typed on %1$s</translation>
+        <translation locale="zh-Hant">已在 %1$s 上輸入</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_toast_copied">
+        <translation locale="en">Copied to %1$s’s clipboard</translation>
+        <translation locale="zh-Hant">已複製到 %1$s 的剪貼簿</translation>
+    </string>
+    <string name="gboard_patches_mac_bridge_toast_unreachable">
+        <translation locale="en">Couldn’t reach %1$s. Is Rambler open on the Mac?</translation>
+        <translation locale="zh-Hant">無法連線到 %1$s。Mac 上的 Rambler 是否已開啟？</translation>
+    </string>
 </settings-text>

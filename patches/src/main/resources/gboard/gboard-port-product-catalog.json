@@ -596,6 +596,26 @@
       ]
     },
     {
+      "feature_id": "mac_bridge",
+      "public_patch_name": "Mac Bridge",
+      "feature_marker": "dev.jason.gboardpatches.feature.mac_bridge",
+      "target_family_ids": ["accesspoint.1803", "macbridge"],
+      "migration_scope": "version-sensitive",
+      "consumer_files": [
+        "patches/src/main/kotlin/dev/jason/gboardpatches/patches/gboard/features/macbridge/GboardMacBridge1803Targets.kt",
+        "patches/src/main/kotlin/dev/jason/gboardpatches/patches/gboard/features/macbridge/GboardMacBridgeFeatureMarkerPatch.kt",
+        "patches/src/main/kotlin/dev/jason/gboardpatches/patches/gboard/features/macbridge/GboardMacBridgeLifecyclePatch.kt",
+        "patches/src/main/kotlin/dev/jason/gboardpatches/patches/gboard/features/macbridge/GboardMacBridgeManifestPatch.kt",
+        "patches/src/main/kotlin/dev/jason/gboardpatches/patches/gboard/registry/GboardPatchRegistry.kt",
+        "patches/src/main/kotlin/dev/jason/gboardpatches/patches/gboard/shared/accesspoint/GboardAccessPointContributions1803Patch.kt",
+        "patches/src/main/kotlin/dev/jason/gboardpatches/patches/gboard/shared/accesspoint/GboardAccessPointContributions1803Targets.kt",
+        "patches/src/main/resources/mac-bridge-res/drawable/gboard_patches_mac_bridge_send.xml"
+      ],
+      "contributions": [
+        { "contribution_id": "mac_bridge.runtime", "anchor_family_id": "dedicated_bytecode", "phase": "dedicated", "order": 1270, "required_bindings": [], "runtime_calls": ["ACCESS_POINT_CONTRIBUTIONS_1803_AFTER_CONTROLLER_CREATED", "ACCESS_POINT_CONTRIBUTIONS_1803_INCLUDE_ORDER_CATALOG", "MAC_BRIDGE_RUNTIME_ON_INPUT_VIEW_STARTED", "MAC_BRIDGE_RUNTIME_ON_INPUT_WINDOW_HIDDEN"] }
+      ]
+    },
+    {
       "feature_id": "package_rename",
       "public_patch_name": "Package Rename",
       "feature_marker": null,

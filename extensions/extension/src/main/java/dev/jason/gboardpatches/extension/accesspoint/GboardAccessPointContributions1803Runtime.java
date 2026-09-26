@@ -3,6 +3,7 @@ package dev.jason.gboardpatches.extension.accesspoint;
 import android.content.Context;
 import android.util.Log;
 import dev.jason.gboardpatches.extension.editingaccesspoints.GboardEditingAccessPoints1803Contribution;
+import dev.jason.gboardpatches.extension.macbridge.GboardMacBridgeAccessPoint1803Contribution;
 
 import java.lang.reflect.Field;
 
@@ -43,6 +44,14 @@ public final class GboardAccessPointContributions1803Runtime {
         } catch (Throwable failure) {
             logFailure("Editing buttons catalog contribution failed", failure);
         }
+        try {
+            if (hasFeature(context, GboardPatchesFeatureAvailability.FEATURE_MAC_BRIDGE)) {
+                result = GboardMacBridgeAccessPoint1803Contribution.INSTANCE
+                        .extendOrderCatalog(context, result);
+            }
+        } catch (Throwable failure) {
+            logFailure("Mac Bridge catalog contribution failed", failure);
+        }
         return result;
     }
 
@@ -75,6 +84,13 @@ public final class GboardAccessPointContributions1803Runtime {
             }
         } catch (Throwable failure) {
             logFailure("Editing buttons controller contribution failed", failure);
+        }
+        try {
+            if (hasFeature(context, GboardPatchesFeatureAvailability.FEATURE_MAC_BRIDGE)) {
+                GboardMacBridgeAccessPoint1803Contribution.INSTANCE.register(controller, context);
+            }
+        } catch (Throwable failure) {
+            logFailure("Mac Bridge controller contribution failed", failure);
         }
     }
 
