@@ -84,6 +84,10 @@
         <translation locale="en">Author</translation>
         <translation locale="zh-Hant">作者</translation>
     </string>
+    <string name="gboard_patches_about_modified_by_title">
+        <translation locale="en">Modified by</translation>
+        <translation locale="zh-Hant">修改者</translation>
+    </string>
     <string name="gboard_patches_about_patch_version_title">
         <translation locale="en">Patch Version</translation>
         <translation locale="zh-Hant">Patch 版本</translation>

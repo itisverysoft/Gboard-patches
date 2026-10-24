@@ -96,6 +96,12 @@ android {
     defaultConfig {
         buildConfigField("String", "PATCH_AUTHOR", "\"jasonwu1994\"")
         buildConfigField("String", "PATCH_AUTHOR_URL", "\"https://github.com/jasonwu1994\"")
+        buildConfigField("String", "PATCH_MODIFIED_BY", "\"srksifat_dev\"")
+        buildConfigField(
+            "String",
+            "PATCH_MODIFIED_BY_URL",
+            "\"https://shoibur.pro.bd\""
+        )
         buildConfigField(
             "String",
             "PATCH_REPOSITORY_URL",

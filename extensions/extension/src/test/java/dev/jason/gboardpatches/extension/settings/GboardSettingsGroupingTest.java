@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class GboardSettingsGroupingTest {
     @Test
@@ -182,6 +183,7 @@ public final class GboardSettingsGroupingTest {
 
     @Test
     public void rootScreenSeparatesPreferenceFeatureAndAboutSections() throws Exception {
+        AtomicBoolean modifiedByOpened = new AtomicBoolean(false);
         RecordingHost host = new RecordingHost();
         FakeFeature symbolFooterFeature = new FakeFeature(
                 "Emojis, stickers & GIFs Tab Order",
@@ -201,9 +203,11 @@ public final class GboardSettingsGroupingTest {
                         host,
                         Collections.singletonList(keyboardGroup),
                         "author",
-                        "version",
                         () -> {
                         },
+                        "srksifat_dev",
+                        () -> modifiedByOpened.set(true),
+                        "version",
                         () -> {
                         });
 
@@ -218,6 +222,13 @@ public final class GboardSettingsGroupingTest {
         reflectRunnable(keyboardRow, "getAction").run();
 
         Assert.assertSame(keyboardGroup, host.openedFeature);
+
+        Object modifiedByRow = findItem(rootScreen, "Modified by");
+        Assert.assertEquals("CommandRow", modifiedByRow.getClass().getSimpleName());
+        Assert.assertEquals("srksifat_dev", reflectString(modifiedByRow, "getSummary"));
+        Assert.assertFalse(modifiedByOpened.get());
+        reflectRunnable(modifiedByRow, "getAction").run();
+        Assert.assertTrue(modifiedByOpened.get());
     }
 
     private static String readSource(String path) throws Exception {

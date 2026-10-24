@@ -122,6 +122,7 @@ public final class GboardPatchesSettingsActivity extends Activity
     private static final int NO_SCROLL_POSITION_REQUESTED = -1;
     private static final String TOOLBAR_TITLE_PATCHES = "Patches";
     private static final String ABOUT_AUTHOR_URL = "https://github.com/jasonwu1994";
+    private static final String ABOUT_MODIFIED_BY_URL = "https://shoibur.pro.bd";
     private static final String ABOUT_PATCH_REPOSITORY_URL =
             "https://github.com/jasonwu1994/Gboard-patches";
     private static final String DOCUMENT_TYPE_FALLBACK = "text/plain";
@@ -2844,8 +2845,10 @@ public final class GboardPatchesSettingsActivity extends Activity
                 this,
                 features,
                 BuildConfig.PATCH_AUTHOR,
-                BuildConfig.PATCH_VERSION,
                 () -> openExternalUrl(ABOUT_AUTHOR_URL),
+                BuildConfig.PATCH_MODIFIED_BY,
+                () -> openExternalUrl(ABOUT_MODIFIED_BY_URL),
+                BuildConfig.PATCH_VERSION,
                 () -> openExternalUrl(ABOUT_PATCH_REPOSITORY_URL));
     }
 
@@ -2853,8 +2856,10 @@ public final class GboardPatchesSettingsActivity extends Activity
             GboardPatchesSettingsContract.FeatureHost host,
             List<? extends GboardPatchesSettingsContract.Feature> rootFeatures,
             String aboutAuthor,
-            String patchVersion,
             Runnable authorAction,
+            String modifiedBy,
+            Runnable modifiedByAction,
+            String patchVersion,
             Runnable patchRepositoryAction) {
         List<GboardPatchesSettingsContract.Row> featureRows =
                 new ArrayList<GboardPatchesSettingsContract.Row>();
@@ -2881,6 +2886,11 @@ public final class GboardPatchesSettingsActivity extends Activity
                 aboutAuthor,
                 true,
                 authorAction));
+        aboutRows.add(new GboardPatchesSettingsContract.CommandRow(
+                GboardSettingsText.get(context, R.string.gboard_patches_about_modified_by_title),
+                modifiedBy,
+                true,
+                modifiedByAction));
         aboutRows.add(new GboardPatchesSettingsContract.CommandRow(
                 GboardSettingsText.get(context,
                         R.string.gboard_patches_about_patch_version_title),
