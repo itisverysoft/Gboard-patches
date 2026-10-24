@@ -122,6 +122,7 @@ android {
 dependencies {
     implementation(libs.apache.ftpserver.core)
     implementation(libs.apache.mina.core)
+    implementation(libs.hidden.api.bypass)
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.14.1")
 }
@@ -295,7 +296,7 @@ val generateSettingsText = tasks.register("generateSettingsText") {
                     }
                 }
                 appendLine("</resources>")
-            })
+            }, StandardCharsets.UTF_8)
         }
 
         val stringEntries = entries.filter { it.type == "string" }
@@ -366,8 +367,14 @@ val generateSettingsText = tasks.register("generateSettingsText") {
                 appendLine("    }")
             }
             appendLine("}")
-        })
+        }, StandardCharsets.UTF_8)
     }
+}
+
+// Settings assertions use English unless a test explicitly selects another locale.
+tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+    systemProperty("user.language", "en")
+    systemProperty("user.country", "US")
 }
 
 val generateLanFtpMessageResource = tasks.register("generateLanFtpMessageResource") {
