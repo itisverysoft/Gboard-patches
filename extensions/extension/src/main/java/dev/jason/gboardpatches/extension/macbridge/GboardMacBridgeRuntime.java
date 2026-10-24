@@ -2,7 +2,9 @@ package dev.jason.gboardpatches.extension.macbridge;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.inputmethodservice.InputMethodService;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +17,8 @@ import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import dev.jason.gboardpatches.extension.R;
@@ -25,7 +29,8 @@ import dev.jason.gboardpatches.extension.settings.GboardSettingsText;
  * Keyboard-side glue for Mac Bridge. While the keyboard is showing (and for a
  * minute after it hides) it stays connected to the paired Mac, so text sent from
  * the Mac lands on the clipboard, where Gboard offers it. The toolbar's "Send to
- * Mac" types the selected text, or the whole field, on the Mac. There is no
+ * Mac" types the selected text, or the whole field, on the Mac, and "Dictate to
+ * Mac" listens on the phone and types what was said on the Mac. There is no
  * service: when the keyboard is gone the Mac holds clips for ten minutes and
  * delivers them the next time it shows.
  *
@@ -47,6 +52,9 @@ public final class GboardMacBridgeRuntime {
     private static volatile Boolean featurePresent;
     private static MacBridgeClient client;
     private static Context applicationContext;
+    private static MacBridgeDictation dictation;
+    /** Sends waiting for the Mac's confirmation before the phone's copy is removed. Main thread. */
+    private static final Map<String, PendingClear> PENDING_CLEARS = new HashMap<>();
 
     private GboardMacBridgeRuntime() {
     }
@@ -68,6 +76,7 @@ public final class GboardMacBridgeRuntime {
     /** After Loup;->onWindowHidden: let the connection linger, then let it go. */
     public static void onInputWindowHidden() {
         try {
+            cancelDictation();
             if (client() == null) {
                 return;
             }
@@ -96,17 +105,8 @@ public final class GboardMacBridgeRuntime {
         InputMethodService ime = service.get();
         Context context = ime != null ? ime : fallbackContext;
         try {
-            if (context == null) {
-                return;
-            }
-            MacBridgeDevice device = MacBridgeStore.device(context);
-            if (!MacBridgeStore.isEnabled(context) || device == null) {
-                toast(context, text(context, R.string.gboard_patches_mac_bridge_toast_not_paired));
-                return;
-            }
-            if (MacBridgeStore.token(context) == null) {
-                toast(context, format(context,
-                        R.string.gboard_patches_mac_bridge_toast_forgotten, device.name));
+            MacBridgeDevice device = readyDevice(context);
+            if (device == null) {
                 return;
             }
             if (ime == null || ime.getCurrentInputConnection() == null) {
@@ -117,7 +117,10 @@ public final class GboardMacBridgeRuntime {
                 toast(context, text(context, R.string.gboard_patches_mac_bridge_toast_password));
                 return;
             }
-            String payload = limit(readFieldText(ime.getCurrentInputConnection()));
+            InputConnection connection = ime.getCurrentInputConnection();
+            CharSequence selected = connection.getSelectedText(0);
+            boolean fromSelection = selected != null && selected.length() > 0;
+            String payload = limit(readFieldText(connection));
             if (payload.trim().isEmpty()) {
                 toast(context, text(context, R.string.gboard_patches_mac_bridge_toast_nothing));
                 return;
@@ -131,10 +134,176 @@ public final class GboardMacBridgeRuntime {
                 toast(context, format(context,
                         R.string.gboard_patches_mac_bridge_toast_connecting, device.name));
             }
-            current.send(UUID.randomUUID().toString(), payload);
+            String id = UUID.randomUUID().toString();
+            if (MacBridgeStore.clearsAfterSend(context)) {
+                PENDING_CLEARS.put(id, new PendingClear(payload, fromSelection,
+                        ime.getCurrentInputEditorInfo()));
+            }
+            current.send(id, payload);
         } catch (Throwable failure) {
             logFailure("Send to Mac failed", failure);
         }
+    }
+
+    /** The Mac confirmed [id]: remove it from the phone if that's on and nothing changed. */
+    private static void clearAfterDelivery(String id) {
+        PendingClear pending = PENDING_CLEARS.remove(id);
+        InputMethodService ime = service.get();
+        if (pending == null || ime == null || !ime.isInputViewShown()) {
+            return;
+        }
+        try {
+            if (!pending.isSameField(ime.getCurrentInputEditorInfo())) {
+                return;
+            }
+            InputConnection connection = ime.getCurrentInputConnection();
+            if (connection != null) {
+                clearIfUnchanged(connection, pending.text, pending.fromSelection);
+            }
+        } catch (Throwable failure) {
+            logFailure("Could not clear the sent text", failure);
+        }
+    }
+
+    /**
+     * Removes [text] from the field only if it is still exactly what was sent: the
+     * selection, or the whole field. Returns whether anything was removed.
+     */
+    static boolean clearIfUnchanged(InputConnection connection, String text, boolean fromSelection) {
+        if (fromSelection) {
+            CharSequence selected = connection.getSelectedText(0);
+            if (selected == null || !text.contentEquals(selected)) {
+                return false;
+            }
+            return connection.commitText("", 1);
+        }
+        if (!text.equals(readFieldText(connection))) {
+            return false;
+        }
+        connection.beginBatchEdit();
+        try {
+            connection.finishComposingText();
+            CharSequence before = connection.getTextBeforeCursor(MAX_FIELD_READ_CHARS, 0);
+            CharSequence after = connection.getTextAfterCursor(MAX_FIELD_READ_CHARS, 0);
+            return connection.deleteSurroundingText(
+                    before == null ? 0 : before.length(), after == null ? 0 : after.length());
+        } finally {
+            connection.endBatchEdit();
+        }
+    }
+
+    private static final class PendingClear {
+        final String text;
+        final boolean fromSelection;
+        final String packageName;
+        final int fieldId;
+
+        PendingClear(String text, boolean fromSelection, EditorInfo info) {
+            this.text = text;
+            this.fromSelection = fromSelection;
+            this.packageName = info == null ? null : info.packageName;
+            this.fieldId = info == null ? 0 : info.fieldId;
+        }
+
+        boolean isSameField(EditorInfo info) {
+            return info != null && fieldId == info.fieldId
+                    && (packageName == null ? info.packageName == null
+                            : packageName.equals(info.packageName));
+        }
+    }
+
+    /**
+     * The toolbar's "Dictate to Mac": listens on the phone and types what was said
+     * into the Mac's focused app. Tapping it again while listening cancels.
+     */
+    static void dictateFromKeyboard(Context fallbackContext) {
+        InputMethodService ime = service.get();
+        Context context = ime != null ? ime : fallbackContext;
+        try {
+            if (dictation != null && dictation.isActive()) {
+                cancelDictation();
+                return;
+            }
+            MacBridgeDevice device = readyDevice(context);
+            if (device == null) {
+                return;
+            }
+            if (ime == null || !ime.isInputViewShown()) {
+                toast(context, text(context, R.string.gboard_patches_mac_bridge_toast_no_field));
+                return;
+            }
+            if (ime.checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                    != PackageManager.PERMISSION_GRANTED) {
+                toast(context, text(context,
+                        R.string.gboard_patches_mac_bridge_toast_mic_permission));
+                return;
+            }
+            if (!MacBridgeSpeech.isAvailable(ime)) {
+                toast(context, text(context,
+                        R.string.gboard_patches_mac_bridge_toast_no_recognizer));
+                return;
+            }
+            MAIN.removeCallbacks(RELEASE);
+            MacBridgeClient current = hold(context);
+            if (current == null) {
+                return;
+            }
+            dictation = MacBridgeDictation.start(ime, new MacBridgeDictation.Output() {
+                @Override
+                public void sendText(String text, boolean pressEnter) {
+                    MacBridgeClient target = hold(ime);
+                    if (target == null) {
+                        return;
+                    }
+                    if (target.state() != MacBridgeClient.State.CONNECTED) {
+                        GboardMacBridgeRuntime.toast(ime, format(ime,
+                                R.string.gboard_patches_mac_bridge_toast_connecting, device.name));
+                    }
+                    target.sendText(limit(text), pressEnter);
+                }
+
+                @Override
+                public void sendPartial(String text) {
+                    current.sendPartial(limit(text));
+                }
+
+                @Override
+                public void toast(String message) {
+                    GboardMacBridgeRuntime.toast(ime, message);
+                }
+            }, device.name);
+            if (dictation == null) {
+                toast(context, text(context, R.string.gboard_patches_mac_bridge_toast_no_panel));
+            }
+        } catch (Throwable failure) {
+            logFailure("Dictate to Mac failed", failure);
+        }
+    }
+
+    private static void cancelDictation() {
+        MacBridgeDictation current = dictation;
+        dictation = null;
+        if (current != null) {
+            current.cancel();
+        }
+    }
+
+    /** The paired Mac when the bridge is on and paired, else null after telling the user why. */
+    private static MacBridgeDevice readyDevice(Context context) {
+        if (context == null) {
+            return null;
+        }
+        MacBridgeDevice device = MacBridgeStore.device(context);
+        if (!MacBridgeStore.isEnabled(context) || device == null) {
+            toast(context, text(context, R.string.gboard_patches_mac_bridge_toast_not_paired));
+            return null;
+        }
+        if (MacBridgeStore.token(context) == null) {
+            toast(context, format(context,
+                    R.string.gboard_patches_mac_bridge_toast_forgotten, device.name));
+            return null;
+        }
+        return device;
     }
 
     /** The settings screen changed the pairing: drop the old session. */
@@ -218,7 +387,9 @@ public final class GboardMacBridgeRuntime {
         ExtractedTextRequest request = new ExtractedTextRequest();
         request.hintMaxChars = MAX_FIELD_READ_CHARS;
         ExtractedText extracted = connection.getExtractedText(request, 0);
-        if (extracted != null && extracted.text != null) {
+        // Some editors (web views among them) answer with an empty extract even when the
+        // field has text, so only trust a non-empty one and otherwise read around the cursor.
+        if (extracted != null && extracted.text != null && extracted.text.length() > 0) {
             return extracted.text.toString();
         }
         CharSequence before = connection.getTextBeforeCursor(MAX_FIELD_READ_CHARS, 0);
@@ -278,6 +449,7 @@ public final class GboardMacBridgeRuntime {
 
         @Override
         public void onSendDelivered(String id, boolean inserted) {
+            MAIN.post(() -> clearAfterDelivery(id));
             Context context = applicationContext;
             toast(context, format(context, inserted
                     ? R.string.gboard_patches_mac_bridge_toast_typed
@@ -286,6 +458,7 @@ public final class GboardMacBridgeRuntime {
 
         @Override
         public void onSendExpired(String id) {
+            MAIN.post(() -> PENDING_CLEARS.remove(id));
             Context context = applicationContext;
             toast(context, format(context,
                     R.string.gboard_patches_mac_bridge_toast_unreachable, macName()));
@@ -296,6 +469,29 @@ public final class GboardMacBridgeRuntime {
             Context context = applicationContext;
             toast(context, format(context,
                     R.string.gboard_patches_mac_bridge_toast_forgotten, macName()));
+        }
+
+        @Override
+        public void onTextResult(boolean delivered, String reason) {
+            Context context = applicationContext;
+            int message;
+            if (delivered) {
+                message = R.string.gboard_patches_mac_bridge_toast_typed;
+            } else if (MacBridgeProtocol.REASON_SCREEN_LOCKED.equals(reason)) {
+                message = R.string.gboard_patches_mac_bridge_toast_mac_locked;
+            } else if (MacBridgeProtocol.REASON_NO_ACCESSIBILITY.equals(reason)) {
+                message = R.string.gboard_patches_mac_bridge_toast_mac_accessibility;
+            } else {
+                message = R.string.gboard_patches_mac_bridge_toast_mac_not_typed;
+            }
+            toast(context, format(context, message, macName()));
+        }
+
+        @Override
+        public void onTextExpired() {
+            Context context = applicationContext;
+            toast(context, format(context,
+                    R.string.gboard_patches_mac_bridge_toast_unreachable, macName()));
         }
     }
 

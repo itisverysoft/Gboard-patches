@@ -114,6 +114,12 @@ public final class GboardMacBridgeSettingsFeature implements GboardPatchesSettin
                     MacBridgeStore.setEnabled(context, value);
                     GboardMacBridgeRuntime.onPairingChanged(context);
                 }));
+        featureRows.add(new GboardPatchesSettingsContract.ToggleRow(
+                text(R.string.gboard_patches_mac_bridge_clear_title),
+                text(R.string.gboard_patches_mac_bridge_clear_summary),
+                tokenValid && enabled,
+                MacBridgeStore.clearsAfterSend(context),
+                value -> MacBridgeStore.setClearsAfterSend(context, value)));
         sections.add(new GboardPatchesSettingsContract.Section(
                 text(R.string.gboard_patches_mac_bridge_section_feature), featureRows));
 
@@ -157,6 +163,10 @@ public final class GboardMacBridgeSettingsFeature implements GboardPatchesSettin
         usageRows.add(new GboardPatchesSettingsContract.DetailRow(
                 text(R.string.gboard_patches_mac_bridge_usage_send_title),
                 text(R.string.gboard_patches_mac_bridge_usage_send_summary),
+                true));
+        usageRows.add(new GboardPatchesSettingsContract.DetailRow(
+                text(R.string.gboard_patches_mac_bridge_usage_dictate_title),
+                text(R.string.gboard_patches_mac_bridge_usage_dictate_summary),
                 true));
         usageRows.add(new GboardPatchesSettingsContract.DetailRow(
                 text(R.string.gboard_patches_mac_bridge_usage_receive_title),

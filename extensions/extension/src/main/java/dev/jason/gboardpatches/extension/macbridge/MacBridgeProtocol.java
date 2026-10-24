@@ -19,6 +19,10 @@ final class MacBridgeProtocol {
     static final String TYPE_ERROR = "error";
     static final String TYPE_CLIP = "clip";
     static final String TYPE_CLIP_ACK = "clipAck";
+    static final String TYPE_TEXT = "text";
+    static final String TYPE_PARTIAL = "partial";
+    static final String TYPE_KEY = "key";
+    static final String TYPE_ACK = "ack";
     static final String TYPE_PING = "ping";
     static final String TYPE_PONG = "pong";
     static final String TYPE_BYE = "bye";
@@ -26,6 +30,12 @@ final class MacBridgeProtocol {
     static final String REASON_BAD_TOKEN = "bad_token";
     static final String REASON_BAD_CODE = "bad_code";
     static final String REASON_NOT_PAIRING = "not_pairing";
+    /** Why the Mac could not type a [text] (`ack` reasons). */
+    static final String REASON_SCREEN_LOCKED = "screen_locked";
+    static final String REASON_NO_ACCESSIBILITY = "no_accessibility";
+
+    static final String KEY_ENTER = "enter";
+    private static final String TARGET_FOCUSED = "focused";
 
     static final String PLATFORM = "android";
     static final String APP_VERSION = "gboard-patches";
@@ -62,6 +72,31 @@ final class MacBridgeProtocol {
                 "text", text,
                 "insert", Boolean.TRUE,
                 "age", Math.max(0L, ageMs));
+    }
+
+    /**
+     * Phone → Mac: finished dictation, typed verbatim into the Mac's focused app.
+     * Every text gets exactly one `ack`, in order.
+     */
+    static String text(String text, long sentAtEpochMs) {
+        return message(TYPE_TEXT,
+                "text", text,
+                "partial", Boolean.FALSE,
+                "target", TARGET_FOCUSED,
+                "ts", sentAtEpochMs);
+    }
+
+    /** Phone → Mac: live preview while the user still talks; the Mac shows it, never types it. */
+    static String partial(String text) {
+        return message(TYPE_PARTIAL,
+                "text", text,
+                "partial", Boolean.TRUE,
+                "target", TARGET_FOCUSED);
+    }
+
+    /** Phone → Mac: press a key (KEY_*) in the Mac's focused app. No ack. */
+    static String key(String key) {
+        return message(TYPE_KEY, "key", key);
     }
 
     /** Phone → Mac: the clip [id] is on this phone's clipboard (repeats are acked too). */

@@ -10,19 +10,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/** The draggable "Send to Mac" Access Point, on the shared 18.0.3 catalog/controller hooks. */
+/**
+ * The draggable "Send to Mac" and "Dictate to Mac" Access Points, on the shared
+ * 18.0.3 catalog/controller hooks.
+ */
 public final class GboardMacBridgeAccessPoint1803Contribution {
     public static final GboardMacBridgeAccessPoint1803Contribution INSTANCE =
             new GboardMacBridgeAccessPoint1803Contribution();
-    public static final String TOKEN = "mac_bridge_send";
-    static final String LABEL = "Send to Mac";
-    /** Added by the Mac Bridge resource patch. */
-    static final String ICON_NAME = "gboard_patches_mac_bridge_send";
+    static final Entry SEND = new Entry("mac_bridge_send", "Send to Mac",
+            "gboard_patches_mac_bridge_send");
+    static final Entry DICTATE = new Entry("mac_bridge_dictate", "Dictate to Mac",
+            "gboard_patches_mac_bridge_dictate");
+    private static final Entry[] ENTRIES = {SEND, DICTATE};
     /** A stock 18.0.3 drawable, used to find the resource package and as a fallback icon. */
     static final int STOCK_DRAWABLE_ID = 0x7f08048b;
 
     private static volatile Handles handles;
-    private static volatile int iconId;
 
     private GboardMacBridgeAccessPoint1803Contribution() {
     }
@@ -34,8 +37,10 @@ public final class GboardMacBridgeAccessPoint1803Contribution {
                 return original;
             }
             List<String> values = copyStrings(collection);
-            if (!values.contains(TOKEN)) {
-                values.add(TOKEN);
+            for (Entry entry : ENTRIES) {
+                if (!values.contains(entry.token)) {
+                    values.add(entry.token);
+                }
             }
             Class<?> immutableCollection = Class.forName(
                     "vxe", false, original.getClass().getClassLoader());
@@ -56,14 +61,20 @@ public final class GboardMacBridgeAccessPoint1803Contribution {
             Context application = context.getApplicationContext();
             Context safeContext = application != null ? application : context;
             Handles active = handles(controller.getClass().getClassLoader());
-            Object builder = active.descriptorBuilderFactory.invoke(null);
-            active.builderTokenMethod.invoke(builder, TOKEN);
-            active.builderIconResourceMethod.invoke(builder, icon(context));
-            active.builderLabelTextField.set(builder, LABEL);
-            active.builderContentDescriptionTextField.set(builder, LABEL);
-            active.builderRunnableMethod.invoke(builder, new SendAction(safeContext));
-            Object descriptor = active.builderBuildMethod.invoke(builder);
-            active.controllerRegisterMethod.invoke(controller, descriptor, false);
+            for (Entry entry : ENTRIES) {
+                try {
+                    Object builder = active.descriptorBuilderFactory.invoke(null);
+                    active.builderTokenMethod.invoke(builder, entry.token);
+                    active.builderIconResourceMethod.invoke(builder, entry.icon(context));
+                    active.builderLabelTextField.set(builder, entry.label);
+                    active.builderContentDescriptionTextField.set(builder, entry.label);
+                    active.builderRunnableMethod.invoke(builder, new Action(entry, safeContext));
+                    Object descriptor = active.builderBuildMethod.invoke(builder);
+                    active.controllerRegisterMethod.invoke(controller, descriptor, false);
+                } catch (Throwable ignored) {
+                    // One Access Point failing must not take the other down.
+                }
+            }
         } catch (Throwable ignored) {
             // A synthetic Access Point must fail closed.
         }
@@ -81,26 +92,6 @@ public final class GboardMacBridgeAccessPoint1803Contribution {
         return result;
     }
 
-    private static int icon(Context context) {
-        int cached = iconId;
-        if (cached != 0) {
-            return cached;
-        }
-        int resolved = STOCK_DRAWABLE_ID;
-        try {
-            Resources resources = context.getResources();
-            String resourcePackage = resources.getResourcePackageName(STOCK_DRAWABLE_ID);
-            int patched = resources.getIdentifier(ICON_NAME, "drawable", resourcePackage);
-            if (patched != 0) {
-                resolved = patched;
-            }
-        } catch (Throwable ignored) {
-            // Keep the stock icon.
-        }
-        iconId = resolved;
-        return resolved;
-    }
-
     private static Handles handles(ClassLoader classLoader) throws Throwable {
         Handles current = handles;
         if (current != null && current.classLoader == classLoader) {
@@ -116,17 +107,57 @@ public final class GboardMacBridgeAccessPoint1803Contribution {
         }
     }
 
-    private static final class SendAction implements Runnable {
+    static final class Entry {
+        final String token;
+        final String label;
+        /** Drawable added by the Mac Bridge resource patch. */
+        final String iconName;
+        private volatile int iconId;
+
+        Entry(String token, String label, String iconName) {
+            this.token = token;
+            this.label = label;
+            this.iconName = iconName;
+        }
+
+        int icon(Context context) {
+            int cached = iconId;
+            if (cached != 0) {
+                return cached;
+            }
+            int resolved = STOCK_DRAWABLE_ID;
+            try {
+                Resources resources = context.getResources();
+                String resourcePackage = resources.getResourcePackageName(STOCK_DRAWABLE_ID);
+                int patched = resources.getIdentifier(iconName, "drawable", resourcePackage);
+                if (patched != 0) {
+                    resolved = patched;
+                }
+            } catch (Throwable ignored) {
+                // Keep the stock icon.
+            }
+            iconId = resolved;
+            return resolved;
+        }
+    }
+
+    private static final class Action implements Runnable {
+        private final Entry entry;
         private final WeakReference<Context> contextReference;
 
-        SendAction(Context context) {
+        Action(Entry entry, Context context) {
+            this.entry = entry;
             contextReference = new WeakReference<>(context);
         }
 
         @Override
         public void run() {
             try {
-                GboardMacBridgeRuntime.sendFromKeyboard(contextReference.get());
+                if (entry == DICTATE) {
+                    GboardMacBridgeRuntime.dictateFromKeyboard(contextReference.get());
+                } else {
+                    GboardMacBridgeRuntime.sendFromKeyboard(contextReference.get());
+                }
             } catch (Throwable ignored) {
                 // Access Point callbacks must not escape into Gboard.
             }

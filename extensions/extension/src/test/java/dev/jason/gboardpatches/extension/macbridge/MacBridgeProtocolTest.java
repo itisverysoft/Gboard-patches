@@ -41,6 +41,23 @@ public final class MacBridgeProtocolTest {
     }
 
     @Test
+    public void dictationIsTypedInTheFocusedApp() throws Exception {
+        JSONObject text = new JSONObject(MacBridgeProtocol.text("Hello Mac.", 1760000000000L));
+        JSONObject partial = new JSONObject(MacBridgeProtocol.partial("Hello"));
+        JSONObject key = new JSONObject(MacBridgeProtocol.key(MacBridgeProtocol.KEY_ENTER));
+
+        Assert.assertEquals("text", text.getString("type"));
+        Assert.assertEquals("Hello Mac.", text.getString("text"));
+        Assert.assertFalse(text.getBoolean("partial"));
+        Assert.assertEquals("focused", text.getString("target"));
+        Assert.assertEquals(1760000000000L, text.getLong("ts"));
+        Assert.assertEquals("partial", partial.getString("type"));
+        Assert.assertTrue(partial.getBoolean("partial"));
+        Assert.assertEquals("key", key.getString("type"));
+        Assert.assertEquals("enter", key.getString("key"));
+    }
+
+    @Test
     public void everyFrameIsOneLine() {
         Assert.assertFalse(MacBridgeProtocol.clip("id", "a\nb\r\nc", 0L).contains("\n"));
         Assert.assertFalse(MacBridgeProtocol.clipAck("id").contains("\n"));

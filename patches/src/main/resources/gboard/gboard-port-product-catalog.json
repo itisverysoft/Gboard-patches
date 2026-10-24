@@ -609,6 +609,7 @@
         "patches/src/main/kotlin/dev/jason/gboardpatches/patches/gboard/registry/GboardPatchRegistry.kt",
         "patches/src/main/kotlin/dev/jason/gboardpatches/patches/gboard/shared/accesspoint/GboardAccessPointContributions1803Patch.kt",
         "patches/src/main/kotlin/dev/jason/gboardpatches/patches/gboard/shared/accesspoint/GboardAccessPointContributions1803Targets.kt",
+        "patches/src/main/resources/mac-bridge-res/drawable/gboard_patches_mac_bridge_dictate.xml",
         "patches/src/main/resources/mac-bridge-res/drawable/gboard_patches_mac_bridge_send.xml"
       ],
       "contributions": [

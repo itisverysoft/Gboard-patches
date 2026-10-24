@@ -34,7 +34,8 @@ import javax.net.ssl.SSLSocket;
  *
  * Text sent to the Mac waits for the connection, but only as long as the Mac would
  * still type it; unacknowledged sends are resent with the same id after a
- * reconnect, and the Mac ignores ids it has already seen.
+ * reconnect, and the Mac ignores ids it has already seen. Dictations (`text`)
+ * are typed in order and each answered by one `ack`.
  *
  * Writes, heartbeats and timers run on one scheduler thread; each connection reads
  * on its own thread. [Listener] callbacks arrive on either, never the main thread.
@@ -56,6 +57,12 @@ final class MacBridgeClient {
 
         /** The Mac no longer knows this phone (unpaired on the Mac). */
         void onTokenRejected();
+
+        /** The Mac answered a dictation: typed, or why not (REASON_SCREEN_LOCKED, …). */
+        void onTextResult(boolean delivered, String reason);
+
+        /** A dictation never reached the Mac while it was fresh enough to type. */
+        void onTextExpired();
     }
 
     private static final String TAG = "GboardMacBridge";
@@ -64,6 +71,12 @@ final class MacBridgeClient {
     /** The Mac types text only while it is under a minute old; stop a little before that. */
     static final long SEND_FRESHNESS_MS = 55_000L;
     private static final int MAX_PENDING_SENDS = 8;
+    /**
+     * The Mac types a dictation whenever it arrives, so one that could not be
+     * delivered quickly is dropped rather than typed into whatever is focused later.
+     */
+    static final long TEXT_FRESHNESS_MS = 60_000L;
+    private static final int MAX_PENDING_TEXTS = 8;
     private static final int MAX_SEEN_CLIPS = 32;
     private static final int REDISCOVER_EVERY_FAILURES = 2;
     private static final long REDISCOVER_MS = 3_000L;
@@ -93,6 +106,11 @@ final class MacBridgeClient {
     private final Object sendsLock = new Object();
     private final Map<String, PendingSend> sends = new LinkedHashMap<>();
     private final ArrayDeque<String> seenClips = new ArrayDeque<>();
+
+    /** Dictations not yet written on this connection, and those written but not yet acked. */
+    private final Object textsLock = new Object();
+    private final ArrayDeque<PendingText> texts = new ArrayDeque<>();
+    private final ArrayDeque<PendingText> awaitingAck = new ArrayDeque<>();
 
     MacBridgeClient(Context context, Listener listener) {
         Context application = context.getApplicationContext();
@@ -159,6 +177,51 @@ final class MacBridgeClient {
         synchronized (sendsLock) {
             sends.clear();
         }
+        synchronized (textsLock) {
+            texts.clear();
+            awaitingAck.clear();
+        }
+    }
+
+    /**
+     * Queues a dictation for the Mac's focused app, in order, and sends it as soon
+     * as the Mac is reachable. With [pressEnter], Return is pressed once the Mac
+     * confirms the text was typed (a `key` is not queued behind typing).
+     */
+    void sendText(String text, boolean pressEnter) {
+        PendingText pending = new PendingText(text, SystemClock.elapsedRealtime(), pressEnter);
+        List<PendingText> dropped = new ArrayList<>();
+        synchronized (textsLock) {
+            texts.addLast(pending);
+            while (texts.size() > MAX_PENDING_TEXTS) {
+                dropped.add(texts.removeFirst());
+            }
+        }
+        for (int index = 0; index < dropped.size(); index++) {
+            listener.onTextExpired();
+        }
+        scheduleTextExpiry(pending, TEXT_FRESHNESS_MS);
+        if (state() == State.CONNECTED) {
+            scheduler.execute(this::flushTexts);
+        } else {
+            connectAsync();
+        }
+    }
+
+    /** Live preview on the Mac; dropped when not connected. */
+    void sendPartial(String text) {
+        if (state() == State.CONNECTED) {
+            scheduler.execute(() -> writeQuietly(MacBridgeProtocol.partial(text)));
+        }
+    }
+
+    /** Presses a KEY_* key on the Mac. Returns false when not connected. */
+    boolean sendKey(String key) {
+        if (state() != State.CONNECTED) {
+            return false;
+        }
+        scheduler.execute(() -> writeQuietly(MacBridgeProtocol.key(key)));
+        return true;
     }
 
     /**
@@ -217,6 +280,73 @@ final class MacBridgeClient {
         }
         if (removed != null) {
             listener.onSendExpired(id);
+        }
+    }
+
+    /** Scheduler thread only: writes queued dictations in order, dropping stale ones. */
+    private void flushTexts() {
+        int expired = 0;
+        while (authed && writer != null) {
+            PendingText next;
+            synchronized (textsLock) {
+                next = texts.pollFirst();
+                if (next == null) {
+                    break;
+                }
+                if (SystemClock.elapsedRealtime() - next.createdAt > TEXT_FRESHNESS_MS) {
+                    expired++;
+                    continue;
+                }
+                awaitingAck.addLast(next);
+            }
+            writeQuietly(MacBridgeProtocol.text(next.text, System.currentTimeMillis()));
+        }
+        for (int index = 0; index < expired; index++) {
+            listener.onTextExpired();
+        }
+    }
+
+    private void scheduleTextExpiry(PendingText pending, long delayMs) {
+        scheduler.schedule(() -> {
+            boolean removed;
+            synchronized (textsLock) {
+                removed = texts.remove(pending);
+            }
+            if (removed) {
+                listener.onTextExpired();
+            }
+        }, Math.max(0L, delayMs), TimeUnit.MILLISECONDS);
+    }
+
+    /** Each `ack` answers the oldest unanswered text: the Mac types them in order. */
+    private void onAck(boolean delivered, String reason) {
+        PendingText answered;
+        synchronized (textsLock) {
+            answered = awaitingAck.pollFirst();
+        }
+        if (answered != null && delivered && answered.pressEnter) {
+            scheduler.execute(() -> writeQuietly(MacBridgeProtocol.key(MacBridgeProtocol.KEY_ENTER)));
+        }
+        listener.onTextResult(delivered, reason);
+    }
+
+    /**
+     * The connection ended with texts unanswered: they go first on the next
+     * connection, as long as they are still fresh. (The Mac may have typed one
+     * whose ack was lost; losing dictation is the worse failure.)
+     */
+    private void requeueUnacknowledged() {
+        List<PendingText> requeued = new ArrayList<>();
+        synchronized (textsLock) {
+            while (!awaitingAck.isEmpty()) {
+                PendingText pending = awaitingAck.removeLast();
+                texts.addFirst(pending);
+                requeued.add(pending);
+            }
+        }
+        long now = SystemClock.elapsedRealtime();
+        for (PendingText pending : requeued) {
+            scheduleTextExpiry(pending, TEXT_FRESHNESS_MS - (now - pending.createdAt));
         }
     }
 
@@ -306,6 +436,7 @@ final class MacBridgeClient {
             });
             MacBridgeSockets.closeQuietly(opened);
             authed = false;
+            requeueUnacknowledged();
             notifyState();
         }
     }
@@ -331,6 +462,8 @@ final class MacBridgeClient {
                 case MacBridgeProtocol.TYPE_CLIP -> onClip(message.string("id"), message.string("text"));
                 case MacBridgeProtocol.TYPE_CLIP_ACK -> onClipAck(message.string("id"),
                         message.flag("inserted"));
+                case MacBridgeProtocol.TYPE_ACK -> onAck(message.flag("delivered"),
+                        message.string("reason"));
                 case MacBridgeProtocol.TYPE_PING ->
                         scheduler.execute(() -> writeQuietly(MacBridgeProtocol.pong()));
                 case MacBridgeProtocol.TYPE_ERROR -> {
@@ -369,6 +502,7 @@ final class MacBridgeClient {
         scheduler.execute(() -> {
             startHeartbeat();
             flushSends();
+            flushTexts();
         });
     }
 
@@ -416,6 +550,10 @@ final class MacBridgeClient {
         MacBridgeStore.clearToken(context);
         synchronized (sendsLock) {
             sends.clear();
+        }
+        synchronized (textsLock) {
+            texts.clear();
+            awaitingAck.clear();
         }
         listener.onTokenRejected();
     }
@@ -492,6 +630,18 @@ final class MacBridgeClient {
             listener.onStateChanged(state());
         } catch (RuntimeException failure) {
             Log.w(TAG, "Mac Bridge state listener failed", failure);
+        }
+    }
+
+    private static final class PendingText {
+        final String text;
+        final long createdAt;
+        final boolean pressEnter;
+
+        PendingText(String text, long createdAt, boolean pressEnter) {
+            this.text = text;
+            this.createdAt = createdAt;
+            this.pressEnter = pressEnter;
         }
     }
 

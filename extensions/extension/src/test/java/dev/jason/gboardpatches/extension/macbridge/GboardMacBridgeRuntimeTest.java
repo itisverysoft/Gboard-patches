@@ -48,6 +48,13 @@ public final class GboardMacBridgeRuntimeTest {
     }
 
     @Test
+    public void emptyExtractFallsBackToTheTextAroundTheCursor() {
+        InputConnection webView = connection(null, "", "typed in ", "a web view");
+
+        Assert.assertEquals("typed in a web view", GboardMacBridgeRuntime.readFieldText(webView));
+    }
+
+    @Test
     public void longTextIsCutWithoutSplittingASurrogatePair() {
         StringBuilder builder = new StringBuilder();
         while (builder.length() < 39_999) {
@@ -60,6 +67,72 @@ public final class GboardMacBridgeRuntimeTest {
         Assert.assertEquals(39_999, limited.length());
         Assert.assertFalse(Character.isHighSurrogate(limited.charAt(limited.length() - 1)));
         Assert.assertEquals("short", GboardMacBridgeRuntime.limit("short"));
+    }
+
+    @Test
+    public void unchangedFieldIsClearedAfterSending() {
+        java.util.List<String> calls = new java.util.ArrayList<>();
+        InputConnection connection = recording(calls, null, "hello mac", "hello ", "mac");
+
+        Assert.assertTrue(GboardMacBridgeRuntime.clearIfUnchanged(connection, "hello mac", false));
+        Assert.assertTrue(calls.contains("finishComposingText"));
+        Assert.assertTrue(calls.contains("deleteSurroundingText:6,3"));
+    }
+
+    @Test
+    public void editedFieldIsLeftAlone() {
+        java.util.List<String> calls = new java.util.ArrayList<>();
+        InputConnection connection = recording(calls, null, "hello mac, more", "", "");
+
+        Assert.assertFalse(GboardMacBridgeRuntime.clearIfUnchanged(connection, "hello mac", false));
+        Assert.assertFalse(calls.stream().anyMatch(call -> call.startsWith("delete")));
+    }
+
+    @Test
+    public void onlyTheSentSelectionIsRemoved() {
+        java.util.List<String> calls = new java.util.ArrayList<>();
+        InputConnection sameSelection = recording(calls, "mac", "hello mac", "hello ", "");
+        InputConnection movedSelection = recording(calls, "hello", "hello mac", "", "");
+
+        Assert.assertTrue(GboardMacBridgeRuntime.clearIfUnchanged(sameSelection, "mac", true));
+        Assert.assertTrue(calls.contains("commitText:"));
+        calls.clear();
+        Assert.assertFalse(GboardMacBridgeRuntime.clearIfUnchanged(movedSelection, "mac", true));
+        Assert.assertTrue(calls.isEmpty());
+    }
+
+    private static InputConnection recording(java.util.List<String> calls, String selected,
+            String extracted, String before, String after) {
+        return (InputConnection) Proxy.newProxyInstance(
+                InputConnection.class.getClassLoader(),
+                new Class<?>[]{InputConnection.class},
+                (proxy, method, args) -> {
+                    switch (method.getName()) {
+                        case "getSelectedText":
+                            return selected;
+                        case "getExtractedText":
+                            ExtractedText text = new ExtractedText();
+                            text.text = extracted;
+                            return text;
+                        case "getTextBeforeCursor":
+                            return before;
+                        case "getTextAfterCursor":
+                            return after;
+                        case "commitText":
+                            calls.add("commitText:" + args[0]);
+                            return Boolean.TRUE;
+                        case "deleteSurroundingText":
+                            calls.add("deleteSurroundingText:" + args[0] + "," + args[1]);
+                            return Boolean.TRUE;
+                        case "finishComposingText":
+                            calls.add("finishComposingText");
+                            return Boolean.TRUE;
+                        default:
+                            Class<?> type = method.getReturnType();
+                            return type == boolean.class ? Boolean.TRUE
+                                    : type == int.class ? 0 : null;
+                    }
+                });
     }
 
     private static EditorInfo editor(int inputType) {

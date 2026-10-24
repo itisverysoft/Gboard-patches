@@ -77,7 +77,7 @@ class GboardMacBridgePatchContractTest {
     }
 
     @Test
-    fun `manifest adds only network permissions and no background components`() {
+    fun `manifest adds network and microphone permissions, the recognizer query, and no components`() {
         val document = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
             .newDocumentBuilder()
             .parse(ByteArrayInputStream(MINIMAL_MANIFEST.toByteArray(StandardCharsets.UTF_8)))
@@ -95,9 +95,16 @@ class GboardMacBridgePatchContractTest {
                 "android.permission.INTERNET",
                 "android.permission.ACCESS_LOCAL_NETWORK",
                 "android.permission.ACCESS_NETWORK_STATE",
+                "android.permission.RECORD_AUDIO",
             ),
             permissions,
         )
+        val actions = (0 until document.getElementsByTagName("action").length).map { index ->
+            document.getElementsByTagName("action").item(index).attributes
+                .getNamedItemNS(ANDROID_NS, "name").nodeValue
+        }
+        assertEquals(listOf("android.speech.RecognitionService"), actions)
+        assertEquals(1, document.getElementsByTagName("queries").length)
         listOf("service", "receiver", "provider", "activity").forEach { tag ->
             assertEquals(0, document.getElementsByTagName(tag).length)
         }

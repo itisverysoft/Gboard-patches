@@ -15,6 +15,7 @@ final class MacBridgeStore {
     private static final String TAG = "GboardMacBridge";
     private static final String PREF_FILE = "gboard_patches_mac_bridge";
     private static final String KEY_ENABLED = "enabled";
+    private static final String KEY_CLEAR_AFTER_SEND = "clear_after_send";
     private static final String KEY_ID = "device_id";
     private static final String KEY_NAME = "device_name";
     private static final String KEY_HOST = "device_host";
@@ -30,6 +31,15 @@ final class MacBridgeStore {
 
     static void setEnabled(Context context, boolean enabled) {
         preferences(context).edit().putBoolean(KEY_ENABLED, enabled).apply();
+    }
+
+    /** After the Mac confirms a Send to Mac, remove the sent text from the phone's field. */
+    static boolean clearsAfterSend(Context context) {
+        return preferences(context).getBoolean(KEY_CLEAR_AFTER_SEND, false);
+    }
+
+    static void setClearsAfterSend(Context context, boolean clear) {
+        preferences(context).edit().putBoolean(KEY_CLEAR_AFTER_SEND, clear).apply();
     }
 
     /** The paired Mac, or null when there is none. */
